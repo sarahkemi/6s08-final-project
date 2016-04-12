@@ -1,13 +1,74 @@
 <html>
 <head>
 	<title>MusicBuddy Web Interface</title>
+	<style type="text/css">
+	*{
+	list-style:none;
+	padding:0;
+	}
+	body{
+	background-color:white;
+	font-family:arial;
+	font-size:10pt;
+	color:#999999;
+	}
+	h2{
+	font-family:arial;
+	font-size:14pt;
+	color:#3399cc;
+	}
+	h3{
+	font-family:arial;
+	font-size:12pt;
+	color:#3399cc;	
+	}
+	.wrapper{
+	width:600px;
+	margin: 0 auto;
+	}
+	#left{
+	float:left;
+	width:290px;
+	padding-right:10px;
+	}
+	#right{
+	float:right;
+	width:300px;
+	}
+	.clear{
+		clear:both;
+	}
+	select{
+		width:250px;
+	}
+	</style>
 </head>
 <body>
-	<h2>Songs:</h2>
-	<ul></ul>
-	Remove
+	<div class="wrapper">
+	<h1>MusicBuddy</h1>
+	<div id="left">
+		<h2>Songs:</h2>
+		<select size=10 multiple>
+			<option>Somewhere Over The Rainbow</option>
+			<option>Viva La Vida - Coldplay</option>
+			<option>Riptide - Vance Joy</option>
+		</select>
+	</div>
+	<div id="right">
+		<h3>Title: </h3> <br>
+		<h3>Chords:</h3> <br>
+		<br>
+		<button type="button" id="remove">Remove Song</button>
+	</div>
+	<div class="clear"></div>
+	</div>
 
-	
+	<div class="wrapper">
+	<h2>Add New Song:</h2>
+	Title: <input type="text"></input>
+	Chords: <input type="text"></input>
+	<button type="button" id="add"> Add Song</button>
+	</div>
 
 </body>
 </html>
