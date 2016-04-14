@@ -20,6 +20,28 @@
 
 	});
 
+	$("#remove").click(function(){
+		$.ajax({
+	        url: 'http://iesc-s2.mit.edu/student_code/aladetan/dev1/sb1.py/',
+	        method:"POST",
+	        type:"POST",
+	        data: "title="+$('#title option:selected').text()+"&action=remove",
+	    });
+	});
+
+	$("#add").click(function(){
+		$.ajax({
+        url: 'http://iesc-s2.mit.edu/student_code/aladetan/dev1/sb1.py/',
+        method:"POST",
+        type:"POST",
+        data: "title="+$("#new_title").val()+"&chords="+$("#new_chords").val()+"&action=add",
+        success: function(data){
+            $("#new_title").val("");
+            $("#new_chord").val("");
+        },
+    	});
+	});
+
 	});
 	</script>
 	<style type="text/css">
