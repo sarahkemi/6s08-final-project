@@ -1,5 +1,6 @@
 import _mysql
 import cgi
+import sb2
 
 body = ''' 
 <head>
@@ -9,7 +10,8 @@ body = '''
     <!-- Magic jQuery code for making things happen-->
     <script type="text/javascript">
     $(document).ready(function() {
-    var songs = {"Somewhere Over The Rainbow":"C Em Am F E7 G", "Viva La Vida": "D E A F#m C#m", "Riptide": "Am G C F"};
+    //var songs = {"Somewhere Over The Rainbow":"C Em Am F E7 G", "Viva La Vida": "D E A F#m C#m", "Riptide": "Am G C F"}; - TEST SONGS
+    var songs = %s;
     $.each(songs, function(key, value) {   
      $('#songs')
           .append($('<option>', { value : key })
@@ -28,7 +30,10 @@ body = '''
             url: 'http://iesc-s2.mit.edu/student_code/aladetan/dev1/sb1.py/',
             method:"POST",
             type:"POST",
-            data: "title="+$('#title option:selected').text()+"&action=remove",
+            data: "title="+$('#songs option:selected').text()+"&action=remove&username=%s",
+            success: function(){
+            setTimeout(function(){ location.reload(); }, 200);
+            },
         });
     });
 
@@ -37,10 +42,11 @@ body = '''
         url: 'http://iesc-s2.mit.edu/student_code/aladetan/dev1/sb1.py/',
         method:"POST",
         type:"POST",
-        data: "title="+$("#new_title").val()+"&chords="+$("#new_chords").val()+"&action=add",
-        success: function(data){
+        data: "title="+$("#new_title").val()+"&chords="+$("#new_chords").val()+"&action=add&username=%s",
+        success: function(){
             $("#new_title").val("");
-            $("#new_chord").val("");
+            $("#new_chords").val("");
+            setTimeout(function(){ location.reload(); }, 200);
         },
         });
     });
@@ -116,73 +122,6 @@ body = '''
 </body>
 '''
 
-class Database():
-    #Class used to interact with the database
-
-    def __init__(self):
-        #Tries to get connection
-        try:
-            self.connection = _mysql.connect(host="iesc-s2.mit.edu",user="aladetan_matiash",passwd="TYZfuR5p",db="aladetan_matiash")
-            #print(self.connection) #Used to Debug
-
-            #Dictionary that hold all of the song name and their respective chords
-            self.songs_to_chords = {}
-            
-            
-        except _mysql.Error as  e:
-            print("ERROR! %d: %s" % (e.args[0],e.args[1]))
-
-    def find_songs(self,username):
-        '''
-        Returns all songs in the songs table that have a specific username
-        '''
-        query = ("SELECT song_title FROM songs WHERE username='%s'" % username)
-        self.connection.query(query)
-        result = self.connection.store_result()
-        rows = result.fetch_row(maxrows=0,how=0)
-        print("These are the songs that we've found for " + username + ":")
-        for row in rows:
-            print(row)
-            
-    def add_to_songs(self,ID,username,song_title,chords):
-        '''
-        Inserts data into the songs table, where data is a list of values specific to that table
-        '''
-        query = ("INSERT INTO songs (id,username,song_title,chords) VALUES (%d,'%s','%s','%s')" % (ID,username,song_title,chords))
-        self.connection.query(query)
-        self.connection.commit()
-        
-    def print_table(self,table):
-        '''
-        Prints all contents of a specific table
-        '''
-        query = ("select * from %s" % table)
-        self.connection.query(query)
-        result = self.connection.store_result()
-        rows = result.fetch_row(maxrows=0,how=0)
-        for row in rows:
-            print(row)
-
-    def reset_table(self,table):
-        '''
-        Deletes everything from a specific table
-        '''
-        query = ("DELETE from %s" % table)
-        self.connection.query(query)
-        self.connection.commit()
-
-    def get_song_chords(self, username):
-        '''
-        Returns a dictionary of the user's songs mapped to their respective chords
-        '''
-        query = ("SELECT song_title, chords FROM songs WHERE username = '%s'" % username)
-        self.connection.query(query)
-        result = self.connection.store_result()
-        rows = result.fetch_row(maxrows=0,how=0)
-        for row in rows:
-            if row[0] not in self.songs_to_chords:
-                self.songs_to_chords[row[0].decode("utf-8")]=row[1].decode("utf-8")
-        return self.songs_to_chords
 
 exec(open("/var/www/html/student_code/LIBS/s08libs.py").read())
 print( "Content-type:text/html\r\n\r\n")
@@ -193,6 +132,8 @@ form = cgi.FieldStorage() #get specified parameters!
 
 users = {"sarah":"loves_uke","matias":"mathon"}
 
+database = sb2.Database()
+
 if method_type == "GET": #expecting a GET request.
     if 'username' in form.keys() and 'password' in form.keys():
         username = form['username'].value
@@ -200,21 +141,26 @@ if method_type == "GET": #expecting a GET request.
         if users[username] != password:
             print('Sorry :( %s. Your password is not correct. Try again!' %(username))
         else:
-            database = Database()
             songs_from_db = database.get_song_chords(username)
-            database.connection.close() #DON'T TOUCH THIS   
-            print(body)
+            print(body %(str(songs_from_db),username,username)) #duplicate usernames are for add and remove jquery, to insert the username into the post request
     else:
         print("You need to specify a user name an password as GET parameters")
 
 if method_type == "POST":
     action = form['action'].value
+    username = form['username'].value
     if action == "add":
         title = form['title'].value
         chords = form['chords'].value
+
+        database.add_to_songs(username,title,chords)
+
+
     elif action == "remove":
-        title = form['title'].value 
+        title = form['title'].value
 
+        database.remove_song(username,title)
 
+database.connection.close() #DON'T TOUCH THIS   
 
 print("</html>")
