@@ -14,9 +14,6 @@ class Database():
         try:
             self.connection = _mysql.connect(host="iesc-s2.mit.edu",user="aladetan_matiash",passwd="TYZfuR5p",db="aladetan_matiash")
             #print(self.connection) #Used to Debug
-
-            #Dictionary that hold all of the song name and their respective chords
-            self.songs_to_chords = {}
             
             
         except _mysql.Error as  e:
@@ -65,6 +62,8 @@ class Database():
         '''
         Returns a dictionary of the user's songs mapped to their respective chords
         '''
+        #Dictionary that hold all of the song name and their respective chords
+        self.songs_to_chords = {}
         query = ("SELECT song_title, chords FROM songs WHERE username = '%s'" % username)
         self.connection.query(query)
         result = self.connection.store_result()
