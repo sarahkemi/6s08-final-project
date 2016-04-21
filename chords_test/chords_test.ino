@@ -40,52 +40,57 @@ void loop() {
   int g[] = {0,2,3,2};
   int am[] = {2,0,0,0};
   int f[] = {2,1,0,0};
-//  chord(g);
-  chord(am);
-//  chord(c);
-//  chord(g);
-//  chord(f);
+
+  chord(g);
 }
 
 void chord(int pattern[]) {
 
-int frets[5][3] = {{400,500,500},{0,1,2},{5,6,7},{8,9,10},{13,14,15}};
-Adafruit_NeoPixel strings[] = {string_g,string_c ,string_e,string_a};
+int frets[5][3] = {{100,100,100},{0,1,2},{5,6,7},{8,9,10},{13,14,15}};
+int stringsLength = 4;
+Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a};
 
-//string_g.show();
-//string_c.show();
-//string_e.show();
-//string_a.show();
+//clear all the strings
 
+for(int i=0; i < 16; i++){
+  string_g.setPixelColor(i, 0, 0, 0);
+  string_c.setPixelColor(i, 0, 0, 0);
+  string_e.setPixelColor(i, 0, 0, 0);
+  string_a.setPixelColor(i, 0, 0, 0);
+  }
+string_g.show();
+string_c.show();
+string_e.show();
+string_a.show();
+
+//create fret seperators
+int seperators[] = {3,4,11,12};
+//
+for(int x=0; x < 4;x++){
+  for(int i=0; i < 4; i++){
+    strings[x].setPixelColor(seperators[i],0,0,255);
+  }
+}
+//strings[0].setPixelColor(seperators[0],0,0,255);
+//strings[0].setPixelColor(seperators[1],0,0,255);
+//for(int x = 0;x < sizeof(strings);x++) {
+//  strings[x].setPixelColor(seperators[0],0,0,255);
+//}
+//int index =0;
+//while(index < stringsLength){
+//  strings[index].setPixelColor(seperators[0],0,0,255);
+//  index++;
+//}
+    
+
+//for loop iterates through the pattern and looks for string that has a numbered fret, and then lights up that fret according to our matrix of leds
   for(int i=0; i < sizeof(pattern); i++){
-
-  if(pattern[i] > 0){
-
-      if(pattern[i] == 1){
-      strings[i].setPixelColor(0, 255, 0, 0);
-      strings[i].setPixelColor(1, 255, 0, 0);
-      strings[i].setPixelColor(2, 255, 0, 0);
-      }
-
-      if(pattern[i] == 2){
-      strings[i].setPixelColor(5, 255, 0, 0);
-      strings[i].setPixelColor(6, 255, 0, 0);
-      strings[i].setPixelColor(7, 255, 0, 0);
-      }
-
-     if(pattern[i] == 3){
-      strings[i].setPixelColor(8, 255, 0, 0);
-      strings[i].setPixelColor(9, 255, 0, 0);
-      strings[i].setPixelColor(10, 255, 0, 0);
-      }
-
-      if(pattern[i] == 4){
-      strings[i].setPixelColor(13, 255, 0, 0);
-      strings[i].setPixelColor(14, 255, 0, 0);
-      strings[i].setPixelColor(15, 255, 0, 0);
-      }
-
-
+    if(pattern[i] > 0){
+  
+      for(int x=0; x < 3; x++){
+         strings[i].setPixelColor(frets[pattern[i]][x], 255, 0, 0);
+        }
+  
       }     
     } 
 
@@ -93,7 +98,5 @@ Adafruit_NeoPixel strings[] = {string_g,string_c ,string_e,string_a};
     string_c.show();
     string_e.show();
     string_a.show();
-
-  delay(2000);
 }
 
