@@ -27,9 +27,10 @@ class Database():
         self.connection.query(query)
         result = self.connection.store_result()
         rows = result.fetch_row(maxrows=0,how=0)
-        print("These are the songs that we've found for " + username + ":")
-        for row in rows:
-            print(row)
+        # print("These are the songs that we've found for " + username + ":")
+        # for row in rows:
+        #     print(row)
+        return rows
             
     def add_to_songs(self,username,song_title,chords):
         '''
