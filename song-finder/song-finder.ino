@@ -32,16 +32,31 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "6S08B"               // PUT SSID HERE
-#define PASSWORD "6S086S08"         // PUT PASSWORD HERE
+#define SSID "MIT"               // PUT SSID HERE
+#define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
 String resp = "";
 
 String body;
+String titles;
+String chords;
 int start;
 int endhtml;
+int start_titles;
+int end_titles;
+int start_chords;
+int end_chords;
+int start_length;
+int end_length;
+int db_length;
+
+String title_list[db_length];
+String chord_list[db_length];
+int last_chord_comma = 0;
+int last_title_comma = 0;
+
 
 //MusicBuddy username & password
 String mb_user = "sarah";
@@ -109,8 +124,29 @@ void setup() {
   
     start = resp.indexOf("<html>");
     endhtml = resp.indexOf("</html>", start);
-    body = resp.substring(start+7, endhtml-1);  
-  
+    body = resp.substring(start+7, endhtml-1);
+
+    start_titles = resp.indexOf("<h1>");
+    end_titles = resp.indexOf("</h1>", start_titles);
+    titles = resp.substring(start_titles+5, end_titles-1);  
+
+    start_chords = resp.indexOf("<h2>");
+    end_chords = resp.indexOf("</h2>", start_chords);
+    chords = resp.substring(start_chords+5, end_chords-1); 
+
+    start_length = resp.indexOf("<p>");
+    end_length = resp.indexOf("</p>", start_length);
+    db_length = resp.substring(start_length+4, end_length-1).toInt();
+
+    
+    for(int i = 0; i < db_length; i++){
+    title_list[i] = titles.substring(last_title_comma + 2, titles.indexOf(",", last_title_comma) - 1);
+    last_title_comma = titles.indexOf(",", last_title_comma);
+
+    chord_list[i] = chords.substring(last_chord_comma + 2, chords.indexOf(",", last_chord_comma) - 1);
+    last_chord_comma = chords.indexOf(",", last_chord_comma);
+    }
+    
     }
    
 
@@ -123,5 +159,9 @@ void loop() {
   tft.setCursor(0, 0);
   tft.setTextColor(ST7735_WHITE);
   tft.setTextWrap(true);
-  tft.print(body); 
+  for(int i = 0; i < db_length; i++){
+      tft.print(title_list[i]);
+      tft.println(chord_list[i]); 
+    };
 }
+
