@@ -9,6 +9,9 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 
+#define BUTTON_WHITE 23
+#define BUTTON_GREEN 22
+
 // For the breakout, you can use any 2 or 3 pins
 // These pins will also work for the 1.8" TFT shield
 #define TFT_CS     10
@@ -32,7 +35,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "MIT"               // PUT SSID HERE
+#define SSID "EECS-MTL-RLE"               // PUT SSID HERE
 #define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
@@ -52,10 +55,10 @@ int start_length;
 int end_length;
 int db_length;
 
-String title_list[db_length];
-String chord_list[db_length];
-int last_chord_comma = 0;
-int last_title_comma = 0;
+String title_list[50];
+String chord_list[50];
+int last_chord_null = -1;
+int last_title_null = -1;
 
 
 //MusicBuddy username & password
@@ -70,6 +73,258 @@ ESP8266 wifi = ESP8266(true);  //Change to "true" or nothing for verbose serial 
 Adafruit_SSD1306 display(4);
 LSM9DS1 imu;
 
+class Selector
+{
+  int limit;
+  float hi_threshold = 15;
+  float lo_threshold = 15;
+  int i;
+  
+  
+  public:
+  Selector(){
+    i = 0;
+  }
+  void update(float pitch, int list_length){
+    limit = list_length;
+    tft.setCursor(0, 60);
+    tft.setTextColor(ST7735_WHITE);
+    tft.setTextWrap(false);
+
+    for(int i = 0; i < list_length; i++){
+      tft.println(title_list[i]);
+    };
+    
+    tft.println("=>");
+    tft.print(title_list[i]);
+
+    //scroll through the alphabet
+
+    if(pitch > lo_threshold){
+      if(i> limit){
+        i = 0;
+       }
+      else{
+        i +=1;
+      }
+      delay(50);
+      tft.fillScreen(ST7735_BLACK);
+    }
+    
+    if(pitch < -lo_threshold){
+      if(i < 0){
+      i = limit;
+      }
+      else{
+      i -=1;
+      }
+      delay(50);
+      tft.fillScreen(ST7735_BLACK);
+    }
+
+//    //do some white magic
+//
+//    bool select = digitalRead(select_button);
+//
+//    if(!select){
+//      sprintf(message,"%s%c",message,alphabet[i]);
+//    }
+
+    //do some green button magic
+
+    bool select_button = digitalRead(BUTTON_GREEN);
+
+    Serial.println("Button:");
+    Serial.println(select_button);
+
+    if(!select_button){
+      view_chords();
+      }
+
+  }
+ 
+  void view_chords(){
+      tft.fillScreen(ST7735_BLACK);
+      tft.setCursor(0, 5);
+      tft.setTextColor(ST7735_WHITE);
+      tft.setTextWrap(false);
+      tft.print(title_list[i]);
+      tft.println(":");
+      tft.println(chord_list[i]);
+//      delay(5000);
+//      tft.fillScreen(ST7735_BLACK);
+
+    }
+// private:
+//  void send(char *message){
+//
+//      String topic = message;
+//      String wiki;
+//      String text; 
+//      int start;
+//      int endhtml;
+//
+//
+//  if(IOT){
+//      //sending the request
+//
+//      if(wifi.isConnected() && !wifi.isBusy()){
+//
+//        String domain = "iesc-s2.mit.edu";
+//        int port = 80;
+//        String path = "/student_code/" + kerberos + "/ex05/ex05e.py";
+//        String param = "topic=" + topic;
+//        wifi.sendRequest(GET, domain, port, path, param); 
+//        delay(4000);
+//      } 
+//
+//                  
+//      //receiving the response/wiki article
+//
+//
+//      if(wifi.hasResponse()){
+//        
+//        wiki = wifi.getResponse();
+//  
+//        Serial.println("Wiki response:" + wiki);
+//  
+//        //parse the wiki response for info to display
+//  
+//      
+//        start = wiki.indexOf("<html>");
+//        endhtml = wiki.indexOf("</html>", start);
+//  
+//        text = wiki.substring(start+6, endhtml);
+//      
+//     }   
+//
+//      //display wiki on screen
+//
+//      display.clearDisplay();
+//      display.setCursor(0,0);
+//      display.setTextSize(1);
+//      display.print(topic);
+//      display.print(":");
+//      display.println(text);
+//      display.display();
+//      delay(10000);
+//      memset(&message[0], 0, sizeof(message));
+//  }  
+
+
+};
+
+class Angle
+{
+  float ax_cal;
+  float ay_cal;
+  float az_cal;
+  float gx_cal;
+  float gy_cal;
+  float gz_cal;
+
+  //float accel_scale = 32768.0//not needed!
+  float gyro_scale = 245.0/32768.0;
+  
+  float acc_pitch;
+  float gyro_pitch;
+  float acc_roll;
+  float gyro_roll;
+  float predicted_pitch;
+  float predicted_roll;
+  unsigned long last_time;
+  unsigned long new_time;
+  float dt;
+  float alpha = 0.95;
+
+  public:
+  Angle(){
+    ax_cal=0;
+    ay_cal=0;
+    az_cal=0;
+    gx_cal=0;
+    gy_cal=0;
+    gz_cal=0;
+    acc_pitch=0;
+    gyro_pitch=0;
+    acc_roll=0;
+    gyro_roll=0;
+    last_time = 0;
+    new_time = 0;
+    dt = 0;
+    predicted_pitch=0;
+    predicted_roll=0;
+    
+  }
+
+  void calibrate(){
+//    display.clearDisplay();
+//    display.setCursor(0,0);
+//    display.setTextSize(1);
+//    display.println("Don't touch");
+//    display.println("");
+//    display.print("Calibrating...");
+//    display.display();
+
+    
+    for (int i = 0; i<100; i++){
+      imu.readAccel();
+      imu.readGyro();
+      ax_cal+=0.01*imu.ax;
+      ay_cal+=0.01*imu.ay;
+      az_cal+=0.01*imu.az;  
+      gx_cal+=0.01*imu.gx;
+      gy_cal+=0.01*imu.gy;
+      gz_cal+=0.01*imu.gz;
+      delay(30);
+    }
+    az_cal-=16384.0; //gravitycorrection assuming 2g full scale!!!
+    
+    display.clearDisplay();
+    display.setCursor(0,0);
+    display.println(ax_cal);
+    display.println(ay_cal);
+    display.println(az_cal);
+    display.println(gx_cal);
+    display.println(gy_cal);
+    display.println(gz_cal);
+    display.display();
+    delay(800); 
+  }
+
+  void update(){
+    new_time = millis();
+    dt = (new_time-last_time)*0.001; //in seconds
+    last_time = new_time;
+    imu.readAccel();
+    imu.readGyro();
+    float ax=imu.ax-ax_cal;
+    float ay=imu.ay-ay_cal;
+    float az=imu.az-az_cal;
+    //Gyro:
+    float gx=(imu.gx-gx_cal)*gyro_scale;//into dps
+    float gy=(imu.gy-gy_cal)*gyro_scale;
+    float gz=(imu.gz-gz_cal)*gyro_scale;
+    acc_pitch = -atan2(ay,az)*180/PI;
+    acc_roll = -atan2(ax,az)*180/PI;
+    predicted_pitch = alpha*(predicted_pitch + gx*dt)+(1-alpha)*acc_pitch;
+    predicted_roll = alpha*(predicted_roll - gy*dt) + (1-alpha)*acc_roll; 
+
+    Serial.println(predicted_pitch);
+    Serial.println(predicted_roll);
+  }
+  float pitch(){
+    return predicted_pitch;
+  }
+  float roll(){
+    return predicted_roll;
+  }
+  
+};
+
+Angle angle;
+Selector select;
+
 
 void setup() {
    // Display setup
@@ -78,6 +333,13 @@ void setup() {
   tft.setRotation(3);
   tft.fillScreen(ST7735_BLACK);
 
+  //button setup
+
+  pinMode(BUTTON_GREEN, INPUT);
+  pinMode(BUTTON_WHITE, INPUT);
+
+  pinMode(BUTTON_GREEN, INPUT_PULLUP);
+  pinMode(BUTTON_WHITE, INPUT_PULLUP);
   
   // Serial setup
   Serial.begin(115200);
@@ -140,13 +402,16 @@ void setup() {
 
     
     for(int i = 0; i < db_length; i++){
-    title_list[i] = titles.substring(last_title_comma + 2, titles.indexOf(",", last_title_comma) - 1);
-    last_title_comma = titles.indexOf(",", last_title_comma);
+    title_list[i] = titles.substring(last_title_null +1, titles.indexOf("\n", last_title_null +1));
+//    Serial.println("Title:");
+//    Serial.println(title_list[i]);
+    last_title_null = titles.indexOf("\n", last_title_null +1 );
 
-    chord_list[i] = chords.substring(last_chord_comma + 2, chords.indexOf(",", last_chord_comma) - 1);
-    last_chord_comma = chords.indexOf(",", last_chord_comma);
+    chord_list[i] = chords.substring(last_chord_null+1, chords.indexOf("\n", last_chord_null + 1));
+//    Serial.println("Chord:");
+//    Serial.println(chord_list[i]);
+    last_chord_null = chords.indexOf("\n", last_chord_null + 1);
     }
-    
     }
    
 
@@ -156,12 +421,8 @@ void setup() {
 }
 
 void loop() {
-  tft.setCursor(0, 0);
-  tft.setTextColor(ST7735_WHITE);
-  tft.setTextWrap(true);
-  for(int i = 0; i < db_length; i++){
-      tft.print(title_list[i]);
-      tft.println(chord_list[i]); 
-    };
+  angle.update();
+  select.update(angle.pitch(),db_length);
+  delay(50);
 }
 
