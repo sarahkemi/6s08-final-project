@@ -3,7 +3,7 @@
   #include <avr/power.h>
 #endif
 
-#define PIN_G 0
+#define PIN_G 2
 #define PIN_C 7
 #define PIN_E 10
 #define PIN_A 12
