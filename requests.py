@@ -36,7 +36,18 @@ if method_type == "GET":
         print("You need to specify a user name an password as GET parameters")
 
 if method_type == "POST":
-    pass
+    if 'username' in form.keys() and 'password' in form.keys():
+        username = form['username'].value
+        password = form['password'].value
+        if users[username] != password:
+            print('Sorry :( %s. Your password is not correct. Try again!' %(username))
+        else:
+            action = form['action'].value
+            if action == 'song-tutor':
+                pass
+    else:
+        print("You need to specify a user name an password as POST parameters")
+
 
 database.connection.close() #DON'T TOUCH THIS   
 print("</html>")
