@@ -32,7 +32,11 @@ if method_type == "GET":
                 for song in songs_from_db.keys():
                     print(songs_from_db[song] + ", \n")
                 print("</h2>")
-            if action == '' 
+            if action == 'song-tutor':
+                latest = database.get_latest_request()
+                pattern = latest[0]
+                time = latest[1]
+
     else:
         print("You need to specify a user name an password as GET parameters")
 
@@ -46,6 +50,7 @@ if method_type == "POST":
             action = form['action'].value
             if action == 'song-tutor':
                 pass
+
     else:
         print("You need to specify a user name an password as POST parameters")
 

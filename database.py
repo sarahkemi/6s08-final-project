@@ -90,9 +90,15 @@ class Database():
         return rows[0][0].decode("utf-8")
         
     def send_to_request(self,pattern):
-        query = ("INSERT INTO request (id,code) VALUES (%d,'%s')" % (0,pattern))
+        query = ("INSERT INTO requests (id,code) VALUES (%d,'%s')" % (0,pattern))
         self.connection.query(query)
-        
+
+    def get_latest_request(self):
+        query = ("SELECT * FROM requests ORDER BY id DESC LIMIT 1;")
+        self.connection.query(query)
+        result = self.connection.store_result()
+        row = result.fetch_row(maxrows=0,how=0)   
+        return [row[0][1].decode("utf-8"),row[0][2]]
 
     def remove_song(self,username, song_title):
         query = ("DELETE FROM songs WHERE username='%s' AND song_title='%s'" % (username,song_title))
