@@ -27,9 +27,10 @@ class Database():
         self.connection.query(query)
         result = self.connection.store_result()
         rows = result.fetch_row(maxrows=0,how=0)
-        print("These are the songs that we've found for " + username + ":")
-        for row in rows:
-            print(row)
+        # print("These are the songs that we've found for " + username + ":")
+        # for row in rows:
+        #     print(row)
+        return rows
             
     def add_to_songs(self,username,song_title,chords):
         '''
@@ -87,6 +88,11 @@ class Database():
         result = self.connection.store_result()
         rows = result.fetch_row(maxrows=0,how=0)
         return rows[0][0].decode("utf-8")
+        
+    def send_to_request(self,pattern):
+        query = ("INSERT INTO request (id,code) VALUES (%d,'%s')" % (0,pattern))
+        self.connection.query(query)
+        
 
     def remove_song(self,username, song_title):
         query = ("DELETE FROM songs WHERE username='%s' AND song_title='%s'" % (username,song_title))

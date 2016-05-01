@@ -32,7 +32,7 @@ if method_type == "GET":
                 for song in songs_from_db.keys():
                     print(songs_from_db[song] + ", \n")
                 print("</h2>")
-            if action == ''
+            if action == '' 
     else:
         print("You need to specify a user name an password as GET parameters")
 
@@ -52,3 +52,4 @@ if method_type == "POST":
 
 database.connection.close() #DON'T TOUCH THIS   
 print("</html>")
+    
