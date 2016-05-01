@@ -89,6 +89,7 @@ class Database():
         rows = result.fetch_row(maxrows=0,how=0)
         return rows[0][0].decode("utf-8")
         
+        
     def send_to_request(self,pattern):
         query = ("INSERT INTO requests (id,code) VALUES (%d,'%s')" % (0,pattern))
         self.connection.query(query)
