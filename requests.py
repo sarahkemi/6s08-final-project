@@ -44,8 +44,15 @@ if method_type == "POST":
             print('Sorry :( %s. Your password is not correct. Try again!' %(username))
         else:
             action = form['action'].value
-            if action == 'song-tutor':
-                pass
+            if action == 'send-pattern':
+                song = form['song-title'].value
+                chords = database.get_song_chords(username)[song] #Sort of inefficient because get_song_chords recreates a dictionary of song:chords mappings, and then we select the same song from that dictionary
+                chords_list = chords.split()
+                index = form['index'].value
+                pattern = database.get_chord_pattern(chords_list[index])
+                database.send_to_request(pattern)
+                
+                
     else:
         print("You need to specify a user name an password as POST parameters")
 
