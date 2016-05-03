@@ -32,6 +32,7 @@ if method_type == "GET":
                 for song in songs_from_db.keys():
                     print(songs_from_db[song] + ", \n")
                 print("</h2>")
+                print("<p>"+str(len(songs_from_db))+"</p>")
     else:
         print("You need to specify a user name an password as GET parameters")
 
