@@ -1,10 +1,13 @@
 import _mysql
 import cgi
 import sb2
+import datetime
 
-exec(open("/var/www/html/student_code/LIBS/s08libs.py").read())
 print( "Content-type:text/html\r\n\r\n")
 print("<html>")
+
+exec(open("/var/www/html/student_code/LIBS/s08libs.py").read())
+
 
 method_type = get_method_type() #use this for figuring out if it is a GET or POST!
 form = cgi.FieldStorage() #get specified parameters!
@@ -35,7 +38,16 @@ if method_type == "GET":
             if action == 'song-tutor':
                 latest = database.get_latest_request()
                 pattern = latest[0]
-                time = latest[1]
+                #check how long it's been since the last request was made
+                now = datetime.datetime.now()
+                time_format = '%Y-%m-%d %H:%M:%S'
+                time = datetime.datetime.strptime(latest[1], time_format)
+                elapsed = now - time
+                if elapsed <= datetime.timedelta(minutes=5):
+                    print("<p>"+pattern+"</p>")
+                else:
+                    print("<p>5555</p>")
+
 
     else:
         print("You need to specify a user name an password as GET parameters")
