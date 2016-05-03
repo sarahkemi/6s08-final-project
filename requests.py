@@ -29,11 +29,11 @@ if method_type == "GET":
                 songs_from_db = database.get_song_chords(username)
                 print("<h1>")
                 for song in songs_from_db.keys():
-                    print(song + ", \n")
+                    print(song)
                 print("</h1>")
                 print("<h2>")
                 for song in songs_from_db.keys():
-                    print(songs_from_db[song] + ", \n")
+                    print(songs_from_db[song])
                 print("</h2>")
             if action == 'song-tutor':
                 latest = database.get_latest_request()
