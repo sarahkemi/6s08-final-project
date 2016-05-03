@@ -35,12 +35,15 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "EECS-MTL-RLE"               // PUT SSID HERE
+#define SSID "MIT"               // PUT SSID HERE
 #define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
 String resp = "";
+
+//concept: stop device from refreshing screen and moving to another song by turning on and off boolean to update selector class
+bool movement = true;
 
 String body;
 String titles;
@@ -98,7 +101,7 @@ class Selector
     tft.println("=>");
     tft.print(title_list[i]);
 
-    //scroll through the alphabet
+    //scroll through the song choices
 
     if(pitch > lo_threshold){
       if(i> limit){
@@ -122,7 +125,7 @@ class Selector
       tft.fillScreen(ST7735_BLACK);
     }
 
-//    //do some white magic
+//    //do some white button magic
 //
 //    bool select = digitalRead(select_button);
 //
@@ -139,6 +142,7 @@ class Selector
 
     if(!select_button){
       view_chords();
+//      movement = false;
       }
 
   }
@@ -155,63 +159,6 @@ class Selector
 //      tft.fillScreen(ST7735_BLACK);
 
     }
-// private:
-//  void send(char *message){
-//
-//      String topic = message;
-//      String wiki;
-//      String text; 
-//      int start;
-//      int endhtml;
-//
-//
-//  if(IOT){
-//      //sending the request
-//
-//      if(wifi.isConnected() && !wifi.isBusy()){
-//
-//        String domain = "iesc-s2.mit.edu";
-//        int port = 80;
-//        String path = "/student_code/" + kerberos + "/ex05/ex05e.py";
-//        String param = "topic=" + topic;
-//        wifi.sendRequest(GET, domain, port, path, param); 
-//        delay(4000);
-//      } 
-//
-//                  
-//      //receiving the response/wiki article
-//
-//
-//      if(wifi.hasResponse()){
-//        
-//        wiki = wifi.getResponse();
-//  
-//        Serial.println("Wiki response:" + wiki);
-//  
-//        //parse the wiki response for info to display
-//  
-//      
-//        start = wiki.indexOf("<html>");
-//        endhtml = wiki.indexOf("</html>", start);
-//  
-//        text = wiki.substring(start+6, endhtml);
-//      
-//     }   
-//
-//      //display wiki on screen
-//
-//      display.clearDisplay();
-//      display.setCursor(0,0);
-//      display.setTextSize(1);
-//      display.print(topic);
-//      display.print(":");
-//      display.println(text);
-//      display.display();
-//      delay(10000);
-//      memset(&message[0], 0, sizeof(message));
-//  }  
-
-
 };
 
 class Angle
@@ -310,8 +257,8 @@ class Angle
     predicted_pitch = alpha*(predicted_pitch + gx*dt)+(1-alpha)*acc_pitch;
     predicted_roll = alpha*(predicted_roll - gy*dt) + (1-alpha)*acc_roll; 
 
-    Serial.println(predicted_pitch);
-    Serial.println(predicted_roll);
+//    Serial.println(predicted_pitch);
+//    Serial.println(predicted_roll);
   }
   float pitch(){
     return predicted_pitch;
@@ -403,13 +350,13 @@ void setup() {
     
     for(int i = 0; i < db_length; i++){
     title_list[i] = titles.substring(last_title_null +1, titles.indexOf("\n", last_title_null +1));
-//    Serial.println("Title:");
-//    Serial.println(title_list[i]);
+    Serial.println("Title:");
+    Serial.println(title_list[i]);
     last_title_null = titles.indexOf("\n", last_title_null +1 );
 
     chord_list[i] = chords.substring(last_chord_null+1, chords.indexOf("\n", last_chord_null + 1));
-//    Serial.println("Chord:");
-//    Serial.println(chord_list[i]);
+    Serial.println("Chord:");
+    Serial.println(chord_list[i]);
     last_chord_null = chords.indexOf("\n", last_chord_null + 1);
     }
     }
