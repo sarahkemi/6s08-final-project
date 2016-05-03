@@ -55,8 +55,6 @@ if method_type == "POST":
                 index = form['index'].value
                 pattern = database.get_chord_pattern(chords_list[index])
                 database.send_to_request(pattern)
-                
-                
     else:
         print("You need to specify a user name an password as POST parameters")
 
