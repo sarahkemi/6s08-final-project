@@ -32,7 +32,7 @@ ESP8266 wifi = ESP8266(true);  //Change to "true" or nothing for verbose serial 
 String mb_user = "sarah";
 String mb_pass = "loves_uke";
 
-//MusicBuddy action - for song finder, action is "song-finder"
+//MusicBuddy action - for song tutor, action is "song-tutor"
 String action = "song-tutor";
 
 Adafruit_NeoPixel string_g = Adafruit_NeoPixel(16, PIN_G, NEO_GRB + NEO_KHZ800);
@@ -41,6 +41,11 @@ Adafruit_NeoPixel string_e = Adafruit_NeoPixel(16, PIN_E, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel string_a = Adafruit_NeoPixel(16, PIN_A, NEO_GRB + NEO_KHZ800);
 
 void setup() {
+
+  // Serial setup
+  Serial.begin(9600);
+
+  Serial.println("Setting up strings...");
   
   string_g.begin();
   string_g.show(); // Initialize all pixels to 'off'
@@ -59,14 +64,12 @@ void setup() {
   string_e.setBrightness(1);
   string_a.setBrightness(1);
 
-  // Serial setup
-  Serial.begin(115200);
-
   if (IOT) {
   wifi.begin();
   wifi.connectWifi(SSID, PASSWORD);
   while (!wifi.isConnected()); //wait for connection
   MAC = wifi.getMAC();
+  Serial.println("Set up wifi..");
   }
  
 
@@ -74,12 +77,21 @@ void setup() {
 
 void loop() {
    if (IOT && wifi.hasResponse()) {
+    Serial.println("IOT");
     resp = wifi.getResponse();
+    Serial.println(resp);
+    Serial.println("Got wifi response!");
     tLastIotResp = millis();
+    Serial.println("blah blah");
+    //Serial.println("tLastIotResp:" + tLastIotResp);
+Serial.println("blah blah2");
 
     int start_pattern = resp.indexOf("<p>");
+    Serial.println("blah blah3");
     int end_pattern = resp.indexOf("</p>", start_pattern);
+    Serial.println("blah blah4");
     String pattern_string = resp.substring(start_pattern+3, end_pattern);
+    Serial.println("blah blah5");
 
     Serial.println("pattern_string:" + pattern_string);
 
@@ -90,25 +102,38 @@ void loop() {
 
 
     chord((int)pattern_string[0]-48,(int)pattern_string[1]-48,(int)pattern_string[2]-48,(int)pattern_string[3]-48);
+    Serial.println("CHORD FINISHED");
   }
 
   if (IOT && (millis() - tLastIotReq >= IOT_UPDATE_INTERVAL)) {
     if (wifi.isConnected() && !wifi.isBusy()) { //Check if we can send request
-
+        Serial.println("Starting request to server..");
       String domain = "iesc-s2.mit.edu";
       int port = 80;
       String path = "/student_code/aladetan/dev1/sb4.py";
       String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + action;
 
+      Serial.println("blah blah sending");
       wifi.sendRequest(GET, domain, port, path, param);
+      Serial.println("blah blah sent");
       tLastIotReq = millis();
-    }
+      Serial.println("Sent request to server!");
+//      String thing = wifi.getResponse();
+      Serial.println("got wifi response to update");
+    } 
+//    else {
+//      Serial.println("Wifi maybenot connected: " + String(wifi.isConnected()));
+//      Serial.println("Wifi maybe busy: " + String(wifi.isBusy()));
+//      Serial.println(String((millis() - tLastIotReq)));
+//      }
   }
 
-delay(200);  
+delay(200);
 }
 
 void chord(int g, int c, int e, int a) {
+Serial.println("CHORD");
+
 
 int pattern[4] = {g,c,e,a};
 
@@ -116,17 +141,21 @@ int frets[5][3] = {{100,100,100},{0,1,2},{5,6,7},{8,9,10},{13,14,15}};
 Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a};
 
 //clear all the strings
-
+Serial.println("String: clear");
 for(int i=0; i < 16; i++){
   string_g.setPixelColor(i, 0, 0, 0);
   string_c.setPixelColor(i, 0, 0, 0);
   string_e.setPixelColor(i, 0, 0, 0);
   string_a.setPixelColor(i, 0, 0, 0);
   }
-string_g.show();
-string_c.show();
-string_e.show();
-string_a.show();
+
+//Serial.println("String: show");
+//string_g.show();
+//string_c.show();
+//string_e.show();
+//string_a.show();
+
+Serial.println("String: complete");
 
 //create fret seperators
 int seperators[] = {3,4,11,12};
@@ -136,6 +165,8 @@ for(int x=0; x < 4;x++){
     strings[x].setPixelColor(seperators[i],0,0,255);
   }
 }
+
+Serial.println("String: fret sep created");
 
 //for loop iterates through the pattern and looks for string that has a numbered fret, and then lights up that fret according to our matrix of leds
   for(int i=0; i < 4; i++){
@@ -148,9 +179,12 @@ for(int x=0; x < 4;x++){
       }     
     } 
 
+    Serial.println("String: numbered frets done");
     string_g.show();
     string_c.show();
     string_e.show();
     string_a.show();
+
+    Serial.println("String: show all");
 }
 
