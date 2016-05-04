@@ -35,8 +35,8 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "6S08B"               // PUT SSID HERE
-#define PASSWORD "6S086S08"         // PUT PASSWORD HERE
+#define SSID "MIT"               // PUT SSID HERE
+#define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
@@ -69,10 +69,11 @@ String mb_user = "sarah";
 String mb_pass = "loves_uke";
 
 //MusicBuddy action - for song finder, action is "song-finder"
-String action = "song-finder";                                                           //Matias changed this section
-String previous_song_title = "Riptide";
-String song_title = "Riptide";
+String previous_song_title = "None";
+String song_title = "Something Else";
+String current_song = "Random";
 int ind = 0;
+
 
 //Initialize library classes
 ESP8266 wifi = ESP8266(true);  //Change to "true" or nothing for verbose serial output
@@ -103,7 +104,8 @@ class Selector
     
     tft.println("=>");
     tft.print(title_list[i]);
-
+    current_song=title_list[i];   //Sets the global variable to the song currently on the screen
+    
     //scroll through the song choices
 
     if(pitch > lo_threshold){
@@ -129,29 +131,6 @@ class Selector
       delay(50);
       tft.fillScreen(ST7735_BLACK);
     }
-
-    //do some green button magic
-
-    bool select_button = !digitalRead(BUTTON_GREEN);
-
-    Serial.println("Button:");
-    Serial.println(select_button);
-    
-    if(select_button){
-      action = "send-pattern";                                                                                  //Matias edited this section too - I tried to add in making the button work out, but since update is not called when the green button is pressed,this does not run like it's supposed to
-      previous_song_title= song_title; //Careful - there could be some problems with the next 2 lines...
-      song_title=title_list[i];
-      if(previous_song_title==song_title) {
-        ind=ind+1; //We'll account for going out of bounds in the requests.py file, unless we can find a way to parse the string of chords given by chord_list[i]
-      }    
-      else {
-        ind=0; //means that we switched songs, so return ind to 0
-      }
-      
-      view_chords();
-      movement = false;
-      }
-
   }
  
   void view_chords(){
@@ -159,6 +138,7 @@ class Selector
       tft.setCursor(0, 5);
       tft.setTextColor(ST7735_WHITE);
       tft.setTextWrap(false);
+//      tft.print(current_song);
       tft.print(title_list[i]);
       tft.println(":");
       tft.println(chord_list[i]);
@@ -329,15 +309,9 @@ void setup() {
     String path = "/student_code/matiash/dev1/sb2.py";                                                //Changed from aladetan's path
 
     //We need to define song-title and index variables
-    if(action == "send-pattern") {
-        String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + action + "&song-title=" + song_title + "&index=" + ind;
-        wifi.sendRequest(POST, domain, port, path, param,true);
-//        action= "song-finder";
-    }
-    if(action == "song-finder" || action == "song-tutor") {
-      String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + action;
-      wifi.sendRequest(GET, domain, port, path, param);   
-    }
+    String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + "song-finder";
+    wifi.sendRequest(GET, domain, port, path, param);   
+    
     
     
     delay(5000);
@@ -391,6 +365,39 @@ void loop() {
       select.update(angle.pitch(),db_length);
     }
 
+
+  //do some green button magic
+
+    bool select_button = !digitalRead(BUTTON_GREEN);
+
+    Serial.println("Button:");
+    Serial.println(select_button);
+    
+    if(select_button){
+      previous_song_title = song_title; //Careful - there could be some problems with the next 2 lines...
+      song_title=current_song;
+      if(previous_song_title==song_title) {
+        ind=ind+1; //We'll account for going out of bounds in the requests.py file, unless we can find a way to parse the string of chords given by chord_list[i]
+      }    
+      else {
+        ind=0; //means that we switched songs, so return ind to 0
+      }
+
+      if(wifi.isConnected() && !wifi.isBusy()){
+          String domain = "iesc-s2.mit.edu";
+          int port = 80;
+          String path = "/student_code/matiash/dev1/sb2.py";                                                //Changed from aladetan's path
+      
+          String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + "send-pattern" + "&song-title=" + song_title + "&index=" + ind;
+          wifi.sendRequest(POST, domain, port, path, param,true);
+          delay(100);
+      
+      
+      select.view_chords();
+      movement = false;
+      }
+    }
+
   //do some white button magic
 
     bool back_button = !digitalRead(BUTTON_WHITE);
@@ -398,6 +405,7 @@ void loop() {
       if(back_button){
       movement = true;
       }
+      
         
   delay(50);
 }
