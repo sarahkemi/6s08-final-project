@@ -12,7 +12,7 @@
 
 //Our power saving options and constants, to the rescue!!
 
-#define DORMANTINTERVAL 10000
+#define DORMANTINTERVAL 60000
 uint32_t last_button_press = 0;
 
 // Time for teensy sleep or deepsleep (ms). Change to whatever you need!
@@ -47,7 +47,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "6S08C"               // PUT SSID HERE
+#define SSID "6S08A"               // PUT SSID HERE
 #define PASSWORD "6S086S08"         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
@@ -629,12 +629,18 @@ void loop() {
       movement = false;
 
 
-      if(select_button || back_button){
+      if((millis() - last_button_press > DORMANTINTERVAL) && (select_button || back_button)){
           pm.setPowerMode("wifi",1);
           pm.setPowerMode("teensy",2);
           tft.fillScreen(ST7735_BLACK);
           movement = true;
-          delay(15000);
+          delay(5000);
+
+          pinMode(BUTTON_GREEN, INPUT);
+          pinMode(BUTTON_WHITE, INPUT);
+
+          pinMode(BUTTON_GREEN, INPUT_PULLUP);
+          pinMode(BUTTON_WHITE, INPUT_PULLUP);
         }
     }  
 
