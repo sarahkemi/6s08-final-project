@@ -132,7 +132,8 @@ if __name__ == "__main__":
     # database.add_to_chords("Fm","1013")
     # database.add_to_chords("Gm","0231")
 
-    database.print_table("chords")
+
+    database.print_table("requests")
 
 #Testing get_chord_pattern method
 #    print("Here is the chord A!")

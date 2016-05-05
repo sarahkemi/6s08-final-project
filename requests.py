@@ -1,6 +1,6 @@
 import _mysql
 import cgi
-import sb2
+import sb1 #Changed so I could test this
 import datetime
 
 print( "Content-type:text/html\r\n\r\n")
@@ -12,7 +12,7 @@ exec(open("/var/www/html/student_code/LIBS/s08libs.py").read())
 method_type = get_method_type() #use this for figuring out if it is a GET or POST!
 form = cgi.FieldStorage() #get specified parameters!
 
-database = sb2.Database()
+database = sb1.Database() #changed from sb2
 
 users = {"sarah":"loves_uke","matias":"mathon"}
 
@@ -65,7 +65,11 @@ if method_type == "POST":
                 song = form['song-title'].value
                 chords = database.get_song_chords(username)[song] #Sort of inefficient because get_song_chords recreates a dictionary of song:chords mappings, and then we select the same song from that dictionary
                 chords_list = chords.split()
-                index = form['index'].value
+                index = int(form['index'].value) % len(chords_list) #we use modula since the teensy (as I wrote it) doesn't account for it
+                print(song)
+                print(chords)
+                print(str(chords_list))
+                print(chords_list[index])
                 pattern = database.get_chord_pattern(chords_list[index])
                 database.send_to_request(pattern)
     else:
