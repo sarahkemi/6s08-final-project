@@ -44,8 +44,8 @@ void setup() {
 
   // Serial setup
   Serial.begin(9600);
-
-  Serial.println("Setting up strings...");
+//
+//  Serial.println("Setting up strings...");
   
   string_g.begin();
   string_g.show(); // Initialize all pixels to 'off'
@@ -69,7 +69,7 @@ void setup() {
   wifi.connectWifi(SSID, PASSWORD);
   while (!wifi.isConnected()); //wait for connection
   MAC = wifi.getMAC();
-  Serial.println("Set up wifi..");
+//  Serial.println("Set up wifi..");
   }
  
 
@@ -79,8 +79,8 @@ void loop() {
    if (IOT && wifi.hasResponse()) {
 //    Serial.println("IOT");
     resp = wifi.getResponse();
-    Serial.println(resp);
-    Serial.println("Got wifi response!");
+//    Serial.println(resp);
+//    Serial.println("Got wifi response!");
     tLastIotResp = millis();
 //    Serial.println("blah blah");
     //Serial.println("tLastIotResp:" + tLastIotResp);
@@ -93,8 +93,6 @@ void loop() {
     String pattern_string = resp.substring(start_pattern+3, end_pattern);
 //    Serial.println("blah blah5");
 
-//    Serial.println("pattern_string:" + pattern_string);
-
 //    Serial.print((int)pattern_string[0]-48);
 //    Serial.print((int)pattern_string[1]-48);
 //    Serial.print((int)pattern_string[2]-48);
@@ -102,24 +100,24 @@ void loop() {
 
 
     chord((int)pattern_string[0]-48,(int)pattern_string[1]-48,(int)pattern_string[2]-48,(int)pattern_string[3]-48);
-    Serial.println("CHORD FINISHED");
+//    Serial.println("CHORD FINISHED");
   }
 
   if (IOT && (millis() - tLastIotReq >= IOT_UPDATE_INTERVAL)) {
     if (wifi.isConnected() && !wifi.isBusy()) { //Check if we can send request
-        Serial.println("Starting request to server..");
+//        Serial.println("Starting request to server..");
       String domain = "iesc-s2.mit.edu";
       int port = 80;
       String path = "/student_code/aladetan/dev1/sb4.py";
       String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + action;
 
-      Serial.println("blah blah sending");
+//      Serial.println("blah blah sending");
       wifi.sendRequest(GET, domain, port, path, param);
-      Serial.println("blah blah sent");
+//      Serial.println("blah blah sent");
       tLastIotReq = millis();
-      Serial.println("Sent request to server!");
+//      Serial.println("Sent request to server!");
 //      String thing = wifi.getResponse();
-      Serial.println("got wifi response to update");
+//      Serial.println("got wifi response to update");
     } 
   }
 
@@ -127,7 +125,7 @@ delay(200);
 }
 
 void chord(int g, int c, int e, int a) {
-Serial.println("CHORD");
+//Serial.println("CHORD");
 
 
 int pattern[4] = {g,c,e,a};
@@ -147,6 +145,7 @@ for(int i=0; i < 16; i++){
 for(int x=0;x<4;x++) {
   strings[x].setBrightness(20);
 }
+
 //Serial.println("String: show");
 //string_g.show();
 //string_c.show();
@@ -158,8 +157,11 @@ Serial.println("String: complete");
 //create fret seperators
 int seperators[] = {3,4,11,12};
 //
-for(int x=0; x < 4;x++){
-  for(int i=0; i < 4; i++){
+
+int x,i;
+
+for(x=0; x < 4;x++){
+  for(i=0; i < 4; i++){
     strings[x].setPixelColor(seperators[i],0,0,255);
   }
 }
@@ -167,10 +169,10 @@ for(int x=0; x < 4;x++){
 Serial.println("String: fret sep created");
 
 //for loop iterates through the pattern and looks for string that has a numbered fret, and then lights up that fret according to our matrix of leds
-  for(int i=0; i < 4; i++){
+  for(i=0; i < 4; i++){
     if((int)pattern[i] > 0 && (int)pattern[i] < 5){
   
-      for(int x=0; x < 3; x++){
+      for(x=0; x < 3; x++){
          strings[i].setPixelColor(frets[(int)pattern[i]][x], 255, 0, 0);
         }
   
