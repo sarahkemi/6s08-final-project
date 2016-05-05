@@ -142,6 +142,16 @@ class Selector
       tft.print(title_list[i]);
       tft.println(":");
       tft.println(chord_list[i]);
+
+//    Printing the index to tell the players what chord they are on
+      int spaces=0;
+      int starting_index=0;
+      while(chord_list[i].indexOf(" ",starting_index) != -1) {
+        spaces++;
+        starting_index=chord_list[i].indexOf(" ",starting_index)+1;
+      }
+      int chord_index=ind%(spaces+1);      //TODO finish this
+      tft.println("Index: " + String(chord_index));
 //      delay(5000);
 //      tft.fillScreen(ST7735_BLACK);
 
@@ -370,8 +380,8 @@ void loop() {
 
     bool select_button = !digitalRead(BUTTON_GREEN);
 
-    Serial.println("Button:");
-    Serial.println(select_button);
+//    Serial.println("Button:");
+//    Serial.println(select_button);
     
     if(select_button){
       previous_song_title = song_title; //Careful - there could be some problems with the next 2 lines...
