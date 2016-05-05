@@ -47,8 +47,8 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "MIT"               // PUT SSID HERE
-#define PASSWORD ""         // PUT PASSWORD HERE
+#define SSID "6S08C"               // PUT SSID HERE
+#define PASSWORD "6S086S08"         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
@@ -377,6 +377,16 @@ class Selector
       tft.print(title_list[i]);
       tft.println(":");
       tft.println(chord_list[i]);
+
+//    Printing the index to tell the players what chord they are on
+      int spaces=0;
+      int starting_index=0;
+      while(chord_list[i].indexOf(" ",starting_index) != -1) {
+        spaces++;
+        starting_index=chord_list[i].indexOf(" ",starting_index)+1;
+      }
+      int chord_index=ind%(spaces+1);      //TODO finish this
+      tft.println("Chord#: " + String(chord_index+1));
 //      delay(5000);
 //      tft.fillScreen(ST7735_BLACK);
 
@@ -630,7 +640,6 @@ void loop() {
 
 
   //do some green button magic
-
     
     if(select_button){
       last_button_press = millis();

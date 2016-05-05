@@ -26,7 +26,7 @@ uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
 String resp = "";
 
-ESP8266 wifi = ESP8266(false);  //Change to "true" or nothing for verbose serial output
+ESP8266 wifi = ESP8266(true);  //Change to "true" or nothing for verbose serial output
 
 //MusicBuddy username & password
 String mb_user = "sarah";
@@ -43,7 +43,7 @@ Adafruit_NeoPixel string_a = Adafruit_NeoPixel(16, PIN_A, NEO_GRB + NEO_KHZ800);
 void setup() {
 
   // Serial setup
-//  Serial.begin(9600);
+  Serial.begin(9600);
 //
 //  Serial.println("Setting up strings...");
   
@@ -141,7 +141,7 @@ int frets[5][3] = {{100,100,100},{0,1,2},{5,6,7},{8,9,10},{13,14,15}};
 Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a};
 
 //clear all the strings
-//Serial.println("String: clear");
+Serial.println("String: clear");
 for(int i=0; i < 16; i++){
   string_g.setPixelColor(i, 0, 0, 0);
   string_c.setPixelColor(i, 0, 0, 0);
@@ -149,42 +149,45 @@ for(int i=0; i < 16; i++){
   string_a.setPixelColor(i, 0, 0, 0);
   }
 
-//Serial.println("String: show");
+Serial.println("String: show");
 //string_g.show();
 //string_c.show();
 //string_e.show();
 //string_a.show();
 
-//Serial.println("String: complete");
+Serial.println("String: complete");
 
 //create fret seperators
 int seperators[] = {3,4,11,12};
 //
-for(int x=0; x < 4;x++){
-  for(int i=0; i < 4; i++){
+
+int x,i;
+
+for(x=0; x < 4;x++){
+  for(i=0; i < 4; i++){
     strings[x].setPixelColor(seperators[i],0,0,255);
   }
 }
 
-//Serial.println("String: fret sep created");
+Serial.println("String: fret sep created");
 
 //for loop iterates through the pattern and looks for string that has a numbered fret, and then lights up that fret according to our matrix of leds
-  for(int i=0; i < 4; i++){
+  for(i=0; i < 4; i++){
     if((int)pattern[i] > 0 && (int)pattern[i] < 5){
   
-      for(int x=0; x < 3; x++){
+      for(x=0; x < 3; x++){
          strings[i].setPixelColor(frets[(int)pattern[i]][x], 255, 0, 0);
         }
   
       }     
     } 
 
-//    Serial.println("String: numbered frets done");
+    Serial.println("String: numbered frets done");
     string_g.show();
     string_c.show();
     string_e.show();
     string_a.show();
 
-//    Serial.println("String: show all");
+    Serial.println("String: show all");
 }
 
