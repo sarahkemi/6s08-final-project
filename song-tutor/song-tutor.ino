@@ -151,7 +151,7 @@ class Selector
         starting_index=chord_list[i].indexOf(" ",starting_index)+1;
       }
       int chord_index=ind%(spaces+1);      //TODO finish this
-      tft.println("Index: " + String(chord_index));
+      tft.println("Chord#: " + String(chord_index+1));
 //      delay(5000);
 //      tft.fillScreen(ST7735_BLACK);
 
