@@ -18,9 +18,9 @@
 // Wifi options, constants, and variables
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
-#define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "MIT"               // PUT SSID HERE
-#define PASSWORD ""         // PUT PASSWORD HERE
+#define IOT_UPDATE_INTERVAL 2000  // How often to send/pull from cloud (ms)
+#define SSID "6S08A"               // PUT SSID HERE
+#define PASSWORD "6S086S08"         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
@@ -39,7 +39,7 @@ Adafruit_NeoPixel string_g = Adafruit_NeoPixel(16, PIN_G, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel string_c = Adafruit_NeoPixel(16, PIN_C, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel string_e = Adafruit_NeoPixel(16, PIN_E, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel string_a = Adafruit_NeoPixel(16, PIN_A, NEO_GRB + NEO_KHZ800);
-
+Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a};
 void setup() {
 
   // Serial setup
@@ -59,10 +59,10 @@ void setup() {
   string_a.begin();
   string_a.show(); // Initialize all pixels to 'off'
 
-  string_g.setBrightness(1);
-  string_c.setBrightness(1);
-  string_e.setBrightness(1);
-  string_a.setBrightness(1);
+//  string_g.setBrightness(1);
+//  string_c.setBrightness(1);
+//  string_e.setBrightness(1);
+//  string_a.setBrightness(1);
 
   if (IOT) {
   wifi.begin();
@@ -77,28 +77,28 @@ void setup() {
 
 void loop() {
    if (IOT && wifi.hasResponse()) {
-    Serial.println("IOT");
+//    Serial.println("IOT");
     resp = wifi.getResponse();
     Serial.println(resp);
     Serial.println("Got wifi response!");
     tLastIotResp = millis();
-    Serial.println("blah blah");
+//    Serial.println("blah blah");
     //Serial.println("tLastIotResp:" + tLastIotResp);
-Serial.println("blah blah2");
+//Serial.println("blah blah2");
 
     int start_pattern = resp.indexOf("<p>");
-    Serial.println("blah blah3");
+//    Serial.println("blah blah3");
     int end_pattern = resp.indexOf("</p>", start_pattern);
-    Serial.println("blah blah4");
+//    Serial.println("blah blah4");
     String pattern_string = resp.substring(start_pattern+3, end_pattern);
-    Serial.println("blah blah5");
+//    Serial.println("blah blah5");
 
-    Serial.println("pattern_string:" + pattern_string);
+//    Serial.println("pattern_string:" + pattern_string);
 
-    Serial.print((int)pattern_string[0]-48);
-    Serial.print((int)pattern_string[1]-48);
-    Serial.print((int)pattern_string[2]-48);
-    Serial.println((int)pattern_string[3]-48);
+//    Serial.print((int)pattern_string[0]-48);
+//    Serial.print((int)pattern_string[1]-48);
+//    Serial.print((int)pattern_string[2]-48);
+//    Serial.println((int)pattern_string[3]-48);
 
 
     chord((int)pattern_string[0]-48,(int)pattern_string[1]-48,(int)pattern_string[2]-48,(int)pattern_string[3]-48);
@@ -121,11 +121,6 @@ Serial.println("blah blah2");
 //      String thing = wifi.getResponse();
       Serial.println("got wifi response to update");
     } 
-//    else {
-//      Serial.println("Wifi maybenot connected: " + String(wifi.isConnected()));
-//      Serial.println("Wifi maybe busy: " + String(wifi.isBusy()));
-//      Serial.println(String((millis() - tLastIotReq)));
-//      }
   }
 
 delay(200);
@@ -138,7 +133,7 @@ Serial.println("CHORD");
 int pattern[4] = {g,c,e,a};
 
 int frets[5][3] = {{100,100,100},{0,1,2},{5,6,7},{8,9,10},{13,14,15}};
-Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a};
+//Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a}; Was here
 
 //clear all the strings
 Serial.println("String: clear");
@@ -149,6 +144,9 @@ for(int i=0; i < 16; i++){
   string_a.setPixelColor(i, 0, 0, 0);
   }
 
+for(int x=0;x<4;x++) {
+  strings[x].setBrightness(20);
+}
 //Serial.println("String: show");
 //string_g.show();
 //string_c.show();
