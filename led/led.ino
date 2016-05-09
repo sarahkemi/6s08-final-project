@@ -19,8 +19,8 @@
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
 #define IOT_UPDATE_INTERVAL 2000  // How often to send/pull from cloud (ms)
-#define SSID "6S08A"               // PUT SSID HERE
-#define PASSWORD "6S086S08"         // PUT PASSWORD HERE
+#define SSID "MIT"               // PUT SSID HERE
+#define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
@@ -143,7 +143,7 @@ for(int i=0; i < 16; i++){
   }
 
 for(int x=0;x<4;x++) {
-  strings[x].setBrightness(20);
+  strings[x].setBrightness(1);
 }
 
 //Serial.println("String: show");
