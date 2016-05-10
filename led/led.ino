@@ -59,11 +59,6 @@ void setup() {
   string_a.begin();
   string_a.show(); // Initialize all pixels to 'off'
 
-//  string_g.setBrightness(1);
-//  string_c.setBrightness(1);
-//  string_e.setBrightness(1);
-//  string_a.setBrightness(1);
-
   if (IOT) {
   wifi.begin();
   wifi.connectWifi(SSID, PASSWORD);
@@ -82,25 +77,13 @@ void loop() {
 //    Serial.println(resp);
 //    Serial.println("Got wifi response!");
     tLastIotResp = millis();
-//    Serial.println("blah blah");
-    //Serial.println("tLastIotResp:" + tLastIotResp);
-//Serial.println("blah blah2");
 
     int start_pattern = resp.indexOf("<p>");
-//    Serial.println("blah blah3");
     int end_pattern = resp.indexOf("</p>", start_pattern);
-//    Serial.println("blah blah4");
     String pattern_string = resp.substring(start_pattern+3, end_pattern);
-//    Serial.println("blah blah5");
-
-//    Serial.print((int)pattern_string[0]-48);
-//    Serial.print((int)pattern_string[1]-48);
-//    Serial.print((int)pattern_string[2]-48);
-//    Serial.println((int)pattern_string[3]-48);
 
 
     chord((int)pattern_string[0]-48,(int)pattern_string[1]-48,(int)pattern_string[2]-48,(int)pattern_string[3]-48);
-//    Serial.println("CHORD FINISHED");
   }
 
   if (IOT && (millis() - tLastIotReq >= IOT_UPDATE_INTERVAL)) {
@@ -111,13 +94,9 @@ void loop() {
       String path = "/student_code/aladetan/dev1/sb4.py";
       String param = "username=" + mb_user + "&password=" + mb_pass + "&action=" + action;
 
-//      Serial.println("blah blah sending");
       wifi.sendRequest(GET, domain, port, path, param);
-//      Serial.println("blah blah sent");
       tLastIotReq = millis();
 //      Serial.println("Sent request to server!");
-//      String thing = wifi.getResponse();
-//      Serial.println("got wifi response to update");
     } 
   }
 
@@ -125,13 +104,11 @@ delay(200);
 }
 
 void chord(int g, int c, int e, int a) {
-//Serial.println("CHORD");
 
 
 int pattern[4] = {g,c,e,a};
 
 int frets[5][3] = {{100,100,100},{0,1,2},{5,6,7},{8,9,10},{13,14,15}};
-//Adafruit_NeoPixel strings[4] = {string_g,string_c ,string_e,string_a}; Was here
 
 //clear all the strings
 Serial.println("String: clear");
@@ -146,17 +123,10 @@ for(int x=0;x<4;x++) {
   strings[x].setBrightness(1);
 }
 
-//Serial.println("String: show");
-//string_g.show();
-//string_c.show();
-//string_e.show();
-//string_a.show();
-
 Serial.println("String: complete");
 
 //create fret seperators
 int seperators[] = {3,4,11,12};
-//
 
 int x,i;
 
