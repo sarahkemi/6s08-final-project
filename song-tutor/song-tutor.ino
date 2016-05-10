@@ -42,8 +42,8 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 // Wifi options, constants, and variables
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
-#define SSID "MIT"               // PUT SSID HERE
-#define PASSWORD ""         // PUT PASSWORD HERE
+#define SSID "6S08B"               // PUT SSID HERE
+#define PASSWORD "6S086S08"         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 String MAC = "";
 String resp = "";
@@ -322,6 +322,7 @@ class Selector
     limit = list_length;
     tft.setCursor(0, 40);
     tft.setTextColor(ST7735_WHITE);
+    tft.setTextSize(1);
     tft.setTextWrap(false);
 
     for(int i = 0; i < list_length; i++){
@@ -356,7 +357,8 @@ class Selector
       tft.fillScreen(ST7735_BLACK);
       tft.setCursor(0, 5);
       tft.setTextColor(ST7735_WHITE);
-      tft.setTextWrap(false);
+      tft.setTextSize(2);
+      tft.setTextWrap(true);
       tft.print(title_list[i]);
       tft.println(":");
       tft.println(chord_list[i]);
@@ -632,6 +634,7 @@ void loop() {
 
   //do some white button magic
       if(back_button){
+      tft.fillScreen(ST7735_BLACK);
       movement = true;
       last_button_press = millis();
       }
