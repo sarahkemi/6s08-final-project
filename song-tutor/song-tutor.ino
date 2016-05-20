@@ -12,7 +12,7 @@
 
 //Our power saving options and constants, to the rescue!!
 
-#define DORMANTINTERVAL 60000
+#define DORMANTINTERVAL 60000 * 20
 uint32_t last_button_press = 0;
 
 // Time for teensy sleep or deepsleep (ms). Change to whatever you need!
@@ -29,10 +29,6 @@ SnoozeBlock config;
                       // in which case, set this #define pin to 0!
 #define TFT_DC     9
 
-// Option 1 (recommended): must use the hardware SPI pins
-// (for UNO thats sclk = 13 and sid = 11) and pin 10 must be
-// an output. This is much faster - also required if you want
-// to use the microSD card (see the image drawing example)
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
 // I2C Setup for IMU
@@ -46,22 +42,19 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 // Wifi options, constants, and variables
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
-#define IOT_UPDATE_INTERVAL 10000  // How often to send/pull from cloud (ms)
-#define SSID "6S08A"               // PUT SSID HERE
+#define SSID "6S08C"               // PUT SSID HERE
 #define PASSWORD "6S086S08"         // PUT PASSWORD HERE
+//#define SSID "MIT"               // PUT SSID HERE
+//#define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
-uint32_t tLastIotResp = 0;      // time of last response
 String MAC = "";
 String resp = "";
 
 //concept: stop device from refreshing screen and moving to another song by turning on and off boolean to update selector class
 bool movement = true;
 
-String body;
 String titles;
 String chords;
-int start;
-int endhtml;
 int start_titles;
 int end_titles;
 int start_chords;
@@ -331,6 +324,7 @@ class Selector
     limit = list_length;
     tft.setCursor(0, 40);
     tft.setTextColor(ST7735_WHITE);
+    tft.setTextSize(1);
     tft.setTextWrap(false);
 
     for(int i = 0; i < list_length; i++){
@@ -344,14 +338,7 @@ class Selector
     //scroll through the song choices
 
     if(pitch > lo_threshold){
-//      if(i> limit){
-//        i = 0;
-//       }
-//      else{
-//        i +=1;
-//      
-//      }
-      i = (i+1)%list_length;            //replaced with lines above cause more readable
+      i = (i+1)%list_length;
       delay(50);
       tft.fillScreen(ST7735_BLACK);
     }
@@ -372,8 +359,8 @@ class Selector
       tft.fillScreen(ST7735_BLACK);
       tft.setCursor(0, 5);
       tft.setTextColor(ST7735_WHITE);
-      tft.setTextWrap(false);
-//      tft.print(current_song);
+      tft.setTextSize(2);
+      tft.setTextWrap(true);
       tft.print(title_list[i]);
       tft.println(":");
       tft.println(chord_list[i]);
@@ -387,10 +374,6 @@ class Selector
       }
       int chord_index=ind%(spaces+1);      //TODO finish this
       tft.println("Chord#: " + String(chord_index+1));
-//      delay(5000);
-//      tft.fillScreen(ST7735_BLACK);
-
-      
     }
 };
 
@@ -438,15 +421,6 @@ class Angle
   }
 
   void calibrate(){
-//    display.clearDisplay();
-//    display.setCursor(0,0);
-//    display.setTextSize(1);
-//    display.println("Don't touch");
-//    display.println("");
-//    display.print("Calibrating...");
-//    display.display();
-
-    
     for (int i = 0; i<100; i++){
       imu.readAccel();
       imu.readGyro();
@@ -490,8 +464,6 @@ class Angle
     predicted_pitch = alpha*(predicted_pitch + gx*dt)+(1-alpha)*acc_pitch;
     predicted_roll = alpha*(predicted_roll - gy*dt) + (1-alpha)*acc_roll; 
 
-//    Serial.println(predicted_pitch);
-//    Serial.println(predicted_roll);
   }
   float pitch(){
     return predicted_pitch;
@@ -519,7 +491,7 @@ void setup() {
   config.setTimer(TEENSY_SLEEP_TIME);   
 
 
-  //button setup
+  //Button setup
 
   pinMode(BUTTON_GREEN, INPUT);
   pinMode(BUTTON_WHITE, INPUT);
@@ -575,10 +547,6 @@ void setup() {
   
     resp = wifi.getResponse();
   
-    start = resp.indexOf("<html>");
-    endhtml = resp.indexOf("</html>", start);
-    body = resp.substring(start+7, endhtml-1);
-
     start_titles = resp.indexOf("<h1>");
     end_titles = resp.indexOf("</h1>", start_titles);
     titles = resp.substring(start_titles+5, end_titles-1);  
@@ -593,19 +561,12 @@ void setup() {
     
     for(int i = 0; i < db_length; i++){
     title_list[i] = titles.substring(last_title_null +1, titles.indexOf("\n", last_title_null +1));
-//    Serial.println("Title:");
-//    Serial.println(title_list[i]);
     last_title_null = titles.indexOf("\n", last_title_null +1 );
 
     chord_list[i] = chords.substring(last_chord_null+1, chords.indexOf("\n", last_chord_null + 1));
-//    Serial.println("Chord:");
-//    Serial.println(chord_list[i]);
     last_chord_null = chords.indexOf("\n", last_chord_null + 1);
     }
-    }
-   
-
-    
+    }    
   }
 
 }
@@ -675,6 +636,7 @@ void loop() {
 
   //do some white button magic
       if(back_button){
+      tft.fillScreen(ST7735_BLACK);
       movement = true;
       last_button_press = millis();
       }
