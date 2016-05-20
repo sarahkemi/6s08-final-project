@@ -12,7 +12,7 @@
 
 //Our power saving options and constants, to the rescue!!
 
-#define DORMANTINTERVAL 60000
+#define DORMANTINTERVAL 60000 * 20
 uint32_t last_button_press = 0;
 
 // Time for teensy sleep or deepsleep (ms). Change to whatever you need!
@@ -42,8 +42,10 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 // Wifi options, constants, and variables
 #define VERBOSE_WIFI true          // Verbose ESP8266 output
 #define IOT true
-#define SSID "6S08B"               // PUT SSID HERE
+#define SSID "6S08C"               // PUT SSID HERE
 #define PASSWORD "6S086S08"         // PUT PASSWORD HERE
+//#define SSID "MIT"               // PUT SSID HERE
+//#define PASSWORD ""         // PUT PASSWORD HERE
 uint32_t tLastIotReq = 0;       // time of last send/pull
 String MAC = "";
 String resp = "";
