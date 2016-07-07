@@ -9,7 +9,7 @@ class Database():
     def __init__(self):
         #Tries to get connection
         try:
-            self.connection = _mysql.connect(host="iesc-s2.mit.edu",user="aladetan_matiash",passwd="TYZfuR5p",db="aladetan_matiash")
+            self.connection = _mysql.connect(host="",user="",passwd="",db="")
             #print(self.connection) #Used to Debug
             
             
